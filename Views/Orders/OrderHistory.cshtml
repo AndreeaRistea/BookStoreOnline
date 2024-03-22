@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Proiect.Models.Order>
+
+<h2>Istoric comenzi</h2>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <h3>
+                        Data comandă
+                    </h3>
+                </th>
+                <th>
+                    <h3>
+                        Total       
+                    </h3> 
+                 </th>
+                <th>
+                    <h3>
+                        Detalii comandă
+                    </h3>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>
+                        <strong>
+                            @order.OrderDate.ToShortDateString()
+                        </strong>
+                    </td>
+                    <td>
+                        <strong>
+                            @order.TotalAmount
+                        </strong>
+                    </td>
+                    <td>
+                        @if (order.OrderItems.Any())
+                        {
+                            <a asp-action="OrderDetails" asp-route-id="@order.OrderId">Detalii</a>
+                        }
+                        else
+                        {
+                            <span>Fără detalii</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Nu există comenzi în istoric.</p>
+}

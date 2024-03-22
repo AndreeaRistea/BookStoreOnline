@@ -1,0 +1,28 @@
+﻿@model Proiect.Models.Order
+
+<h2>Detalii comandă</h2>
+
+<p>Data comenzii: @Model.OrderDate.ToShortDateString()</p>
+<p>Total: @Model.TotalAmount</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Titlu carte</th>
+            <th>Cantitate</th>
+            <th>Preț unitar</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>@item.Book.Title</td>
+                <td>@item.Quantity</td>
+                <td>@item.Book.Price</td>
+                <td>@(item.Quantity * item.Book.Price)</td>
+            </tr>
+        }
+    </tbody>
+</table>

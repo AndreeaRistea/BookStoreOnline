@@ -1,0 +1,27 @@
+﻿@model Proiect_CE.Models.Author
+
+@{
+    ViewData["Title"] = "Sterge";
+}
+
+<h1>Sterge</h1>
+
+<h3>Esti sigur ca vrei sa stergi?</h3>
+<div>
+    <h4>Author</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

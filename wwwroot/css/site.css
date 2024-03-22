@@ -1,0 +1,40 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+.estateLogo {
+    width: 60px;
+    height: 60px;
+}
+
+#nav {
+    background-color: #808080ff;
+}
+
+.navbar-brand {
+    /*background-color: #4382ec64;*/
+    background-color: #f2f2f2;
+}
+
+.navbar-nav {
+    /*background-color: #ac82f064;*/
+    /*background: rgb(2,0,36);*/
+    background-color: #f2f2f2;
+}
+
+

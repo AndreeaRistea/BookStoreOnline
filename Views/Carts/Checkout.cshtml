@@ -1,0 +1,66 @@
+﻿<div class="container">
+    <h1 class="text-center">Plasează comanda</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <form>
+                <div class="mb-3">
+                    <label for="nume" class="form-label">Nume:</label>
+                    <input type="text" id="nume" name="nume" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="telefon" class="form-label">Telefon:</label>
+                    <input type="tel" id="telefon" name="telefon" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="adresa" class="form-label">Adresa:</label>
+                    <input type="text" id="adresa" name="adresa" class="form-control" required>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" id="Plata la livrare" name="Plata la livrare" class="form-check-input" required>
+                    <label for="varianta" class="form-check-label">Plata la livrare</label>
+                </div>
+
+                <a class="btn btn-primary" asp-area="" asp-controller="Carts" asp-action="Checkout">Trimite comanda</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Atașează un eveniment de clic butonului "Trimite comanda"
+            $("#btnTrimiteComanda").click(function () {
+                // Colectează valorile din formular
+                var nume = $("#nume").val();
+                var telefon = $("#telefon").val();
+                var adresa = $("#adresa").val();
+                var plataLaLivrare = $("#PlataLaLivrare").prop("checked");
+
+                // Apel către acțiunea Checkout în controller
+                $.ajax({
+                    type: 'POST',
+                    url: '/Carts/Checkout',
+                    data: {
+                        nume: nume,
+                        telefon: telefon,
+                        adresa: adresa,
+                        plataLaLivrare: plataLaLivrare
+                    },
+                    success: function () {
+                        // Redirectează sau afișează un mesaj de confirmare
+                        window.location.href = '/Carts/OrderConfirmation';
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error submitting order:', status, error);
+                        // Tratează eroarea cum consideri necesar
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,72 @@
+﻿@model Proiect.Models.Cart
+
+@{
+    ViewData["Title"] = "IndexAdmin";
+}
+
+<h1>IndexAdmin</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalAmount)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                @Html.DisplayFor(model => model.UserId)
+            </td>
+            <td>
+                @Html.DisplayFor(model => model.TotalAmount)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@Model.CartId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@Model.CartId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@Model.CartId">Delete</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Cart Items</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CartItems.FirstOrDefault().Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CartItems.FirstOrDefault().Book.Title)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.CartItems)
+        {
+                <tr>
+                    <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                    </td>
+                    <td>
+                    @Html.DisplayFor(modelItem => item.Book.Title)
+                    </td>
+                    <td>
+                        <a asp-action="EditCartItem" asp-route-id="@item.CartItemId">Edit</a> |
+                        <a asp-action="DetailsCartItem" asp-route-id="@item.CartItemId">Details</a> |
+                        <a asp-action="DeleteCartItem" asp-route-id="@item.CartItemId">Delete</a>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,149 @@
+﻿@model Tuple<Proiect.Models.Cart, IEnumerable<Proiect.Models.Cart>>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Cos Cumparaturi</h1>
+@if (User.IsInRole("Admin"))
+{
+    <table class="table table-primary table-striped">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Item1.UserId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Item1.TotalAmount)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Item2)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => item.UserId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.TotalAmount)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.CartId">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.CartId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.CartId">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+else
+{
+
+    <table class="table table-primary table-striped">
+        @if (Model.Item1.CartItems.Any())
+        {
+            <div class="container-fluid">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;height: 60%;">
+                            @Html.DisplayNameFor(model => model.Item1.CartItems.FirstOrDefault().Book.Title)
+                        </th>
+                        <th style="width: 20%;height: 60%;">
+                            @Html.DisplayNameFor(model => model.Item1.CartItems.FirstOrDefault().Book.Authors.Name)
+                        </th>
+                        <th style="width: 10%;height: 60%;">
+                            @Html.DisplayNameFor(model => model.Item1.CartItems.FirstOrDefault().Book.PublishingHouse.Name)
+                        </th>
+                        <th style="width: 10%;height: 60%;">
+                            @Html.DisplayNameFor(model => model.Item1.CartItems.FirstOrDefault().Book.Price)
+                        </th>
+                        <th style="width: 10%;height: 60%;">
+                            @Html.DisplayNameFor(model => model.Item1.CartItems.FirstOrDefault().Quantity)
+                        </th>
+                        <th style="width: 30%;height: 60%;">
+                            @Html.DisplayNameFor(model => model.Item1.CartItems.FirstOrDefault().Book.Image)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Item1.CartItems)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Book.Title)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Book.Authors.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Book.PublishingHouse.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Book.Price)
+                            </td>
+                            <td>
+                                <div class="quantity-container">
+                                    <button class="quantity-btn" onclick="updateQuantity('@item.CartItemId', -1)">-</button>
+                                    <span class="quantity">@Html.DisplayFor(modelItem => item.Quantity)</span>
+                                    <button class="quantity-btn" onclick="updateQuantity('@item.CartItemId', 1)">+</button>
+                                </div>
+                            </td>
+
+                            <td>
+                                <img src="data:image;base64,@Convert.ToBase64String(item.Book.Image)" alt="Book Image" style="max-width: 100%; max-height: 100%;" />
+                            </td>
+                            <td>
+                                <form asp-action="RemoveFromCart" method="post" asp-route-cartItemId="@item.CartItemId" asp-route-cartId="@item.CartId">
+                                    <button type="submit">Scoate din cos</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </div>
+        }  
+        else
+        {
+            <div class="container">
+                <div class="row mt-5">
+                    <div class="col text-center">
+                        <p style="font-size: 24px; font-weight: bold;">Cosul de cumparaturi este gol!</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </table>
+    <div>Total plata: @Model.Item1.TotalAmount</div>
+    <a class="btn btn-primary" asp-area="" asp-controller="Carts" asp-action="PlaceOrder">Cumpără</a>
+
+}
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        function updateQuantity(cartItemId, change) {
+            const url = `/Carts/UpdateQuantity?cartItemId=${cartItemId}&change=${change}`;
+            console.log('Request URL:', url);
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function () {
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error updating quantity:', status, error);
+                }
+            });
+        }
+    </script>
+}

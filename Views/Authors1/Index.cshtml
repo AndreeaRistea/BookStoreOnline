@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Proiect_CE.Models.Author>
+
+@{
+    ViewData["Title"] = "Autori";
+}
+
+<h1>Autori</h1>
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-success"><i class="fas fa-plus"></i>Adauga</a>
+    </p>
+}
+<table class="table table-primary table-striped">
+    <thead>
+        <tr>
+            <th width="50%">
+                Nume
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+                <td>
+                    <a asp-controller="Books1" asp-action="BookGroupByAuthor" asp-route-authorId="@item.Id" class="btn-info">
+                        <i class="fas fa-book-open"></i>Vezi Carti
+                    </a>
+                </td>
+            @if (User.IsInRole("Admin"))
+            {
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary"><i class="far fa-edit"></i>Editeaza</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info"><i class="fas fa-clipboard-list"></i>Detalii</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger"><i class="far fa-trash-alt"></i>Sterge</a>
+                </td>
+            }
+        </tr>
+}
+    </tbody>
+</table>

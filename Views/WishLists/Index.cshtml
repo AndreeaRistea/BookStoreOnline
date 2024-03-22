@@ -1,0 +1,64 @@
+﻿@model Proiect_CE.Models.WishList
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Carti favorite</h1>
+
+<table class="table table-primary table-striped">     
+    @if (Model.books.Any())
+    {
+            <thead>
+                <tr>
+                    <th>
+                        Titlu carte
+                    </th>
+                    <th style="width: 20%;height: 60%;">
+                        Coperta
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+ 
+            @foreach (var item in Model.books)
+            {
+                <tr>
+                    <td>
+                        <big>@Html.DisplayFor(modelItem => item.Title)</big>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            @if (item.Image != null && item.Image.Length > 0)
+                            {
+                                <img src="data:image;base64,@Convert.ToBase64String(item.Image)" alt="Book Image" style="max-width: 100%; max-height: 100%;" />
+                            }
+                            else
+                            {
+                                <p>No image available</p>
+                            }
+                         </div>
+                    </td>
+                    <td>
+                        <form asp-action="RemoveFromWishlist" method="post" asp-route-wishListId="@Model.id" asp-route-bookId="@item.ISBN">
+                            <button type="submit">Scoate din lista</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+      
+        </tbody>
+    }
+    else
+    {
+        <div class="container">
+            <div class="row mt-5">
+                <div class="col text-center">
+                    <p style="font-size: 24px; font-weight: bold;">Nu aveți cărți favorite până în acest moment!</p>
+                </div>
+            </div>
+        </div>
+
+    }
+</table>

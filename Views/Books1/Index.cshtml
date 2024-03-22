@@ -1,0 +1,91 @@
+﻿@model IEnumerable<Proiect_CE.Models.Book>
+
+@{
+    ViewData["Title"] = "Carti";
+}
+
+<style>
+    .card {
+        max-height: 120%;
+    }
+</style>
+
+<h1>Carti</h1>
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-success"><i class="fas fa-plus"></i>Adauga</a>
+    </p>
+}
+
+<script>
+    window.addEventListener('load', function () {
+        var cards = document.querySelectorAll('.card');
+        var maxHeight = 0;
+
+        cards.forEach(function (card) {
+            maxHeight = Math.max(maxHeight, card.offsetHeight);
+        });
+
+        cards.forEach(function (card) {
+            card.style.height = maxHeight + 'px';
+        });
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        @if (Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="data:image;base64,@Convert.ToBase64String(item.Image)" class="card-img-top" alt="Book Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Title</h5>
+                            <p class="card-text">@item.Description</p>
+                            <p class="card-text">Publishing House: @item.PublishingHouse.Name</p>
+                            <p class="card-text">Published Date: @item.DatePublishing.ToShortDateString()</p>
+                            <p class="card-text">Genre: @item.Genre.Name</p>
+                            <p class="card-text">Author: @item.Authors.Name</p>
+                            <p class="card-text">Price: @item.Price lei</p>
+                            <p class="card-text">Stock: @item.Stock buc</p>
+                            @if (!string.IsNullOrEmpty(item.FragmentFileName))
+                            {
+                                <div class="form-group">
+                                    <a href="@Url.Action("OpenFragment", new { id = item.ISBN })" class="btn btn-secondary mb-2"><i class="fas fa-file-pdf"></i> Citeste mai mult</a>
+                                </div>
+                            }
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a href="@Url.Action("Edit", new { id = item.ISBN })" class="btn btn-primary"><i class="far fa-edit"></i>Editeaza</a>
+                                <a href="@Url.Action("Details", new { id = item.ISBN })" class="btn btn-info"><i class="fas fa-clipboard-list"></i>Detalii</a>
+                                <a href="@Url.Action("Delete", new { id = item.ISBN })" class="btn btn-danger"><i class="far fa-trash-alt"></i>Sterge</a>
+                            }
+                            else
+                            {
+                                <form asp-action="AddToWishlist" method="post">
+                                    <input type="hidden" name="bookId" value="@item.ISBN" />
+                                    <button type="submit" class="btn btn-success mb-2"><i class="fas fa-heart"></i>Adauga in Wishlist</button>
+                                </form>
+                                <form asp-controller="Carts" asp-action="AddToCart" method="post">
+                                    <input type="hidden" name="bookId" value="@item.ISBN" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="btn btn-primary mb-2"><i class="fas fa-shopping-cart"></i>Adauga in Cos</button>
+                                </form>
+                            }
+                        </div>
+                </div>
+            </div>
+            }
+        }
+        else
+        {
+            <div class="col">
+                <p>Nu există cărți disponibile în acest moment. Vă rugăm să reveniți mai târziu.</p>
+            </div>
+        }
+    </div>
+</div>
