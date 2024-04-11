@@ -1,11 +1,11 @@
-﻿@model IEnumerable<Proiect_CE.Models.Genre>
+﻿@model List<IGrouping<Proiect_CE.Models.Genre, Proiect_CE.Models.Book>>
 @{
     ViewData["Title"] = "Home Page";
 }
 <style>
     .fixed-size-img {
-        width: 500px; /* sau orice altă valoare dorită pentru lățime */
-        height: 300px; /* sau orice altă valoare dorită pentru înălțime */
+        width: 500px; 
+        height: 300px; 
     }
 
     .card {
@@ -33,21 +33,37 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </body>
 
-<h1>Genuri Carti</h1>
+<form asp-controller="Home" asp-action="Index" method="get">
+    <input type="text" placeholder="Cauta..." name="searchString" style="width:300px; margin-top: 50px; margin-bottom: 50px">
+    <button type="submit">
+        <i class="fa fa-search" style="font-size: 18px;"></i>
+    </button>
+</form>
 
-<div class="row">
-    @foreach (var item in Model)
-    {
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">@Html.DisplayFor(modelItem => item.Name)</h5>
-                    <p class="card-text">@Html.DisplayFor(modelItem => item.Description)</p>
-                    <a asp-controller="Books1" asp-action="BookGroupByGenre" asp-route-genreId="@item.Id" class="btn btn-info">
-                        <i class="fas fa-book-open"></i> Vezi Carti
-                    </a>
+
+@foreach (var genreGroup in Model)
+{
+    <h2>== @genreGroup.Key.Name ==</h2> 
+
+    <div class="row">
+        @foreach (var book in genreGroup)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <img src="data:image;base64,@Convert.ToBase64String(@book.Image)" class="card-img-top" alt="Book Image">
+                    <div class="card-body">
+                        <h5 class="card-title">Title: @book.Title</h5> 
+                        <p class="card-text">Author: @book.Authors.Name</p> 
+                        <p class="card-text">PublishingHouse: @book.PublishingHouse.Name</p>
+                        <p class="card-text">Price: @book.Price</p>
+                        <form asp-controller="Carts" asp-action="AddToCart" method="post">
+                            <input type="hidden" name="bookId" value="@book.ISBN" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="btn btn-primary mb-2"><i class="fas fa-shopping-cart"></i>Adauga in Cos</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    }
-</div>
+        }
+    </div>
+}

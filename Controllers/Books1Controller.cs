@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proiect_CE.Data;
 using Proiect_CE.Models;
+using System;
 using System.Data;
 using System.Security.Claims;
 
@@ -20,11 +21,38 @@ namespace Proiect_CE.Controllers
 
         // GET: Books1
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string title)
         {
-            var bookStoreContext = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
+            if(title != null)
+            {
+                var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
+                .Include(b => b.PublishingHouse).Where(b=>b.Title.ToLower().Contains(title.ToLower()));
+                return View(await books.ToListAsync());
+            }
+            else
+            {
+                var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
                 .Include(b => b.PublishingHouse);
-            return View(await bookStoreContext.ToListAsync());
+                return View(await books.ToListAsync());
+            }
+            
+        }
+
+        public async Task<IActionResult> SearchByAuthor(string author)
+        {
+            if (author != null)
+            {
+                var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
+                .Include(b => b.PublishingHouse).Where(b => b.Authors.Name.ToLower().Contains(author.ToLower()));
+                return View("Index",await books.ToListAsync());
+            }
+            else
+            {
+                var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
+                .Include(b => b.PublishingHouse);
+                return View("Index", await books.ToListAsync());
+            }
+
         }
 
         [AllowAnonymous]
