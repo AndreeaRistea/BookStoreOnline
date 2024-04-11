@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proiect_CE.Data;
+using Proiect_CE.Models;
 
 namespace Proiect.Controllers
 {
@@ -22,7 +24,9 @@ namespace Proiect.Controllers
             try
             {
                 string term = HttpContext.Request.Query["term"].ToString();
-                var title = _context.Books.Where(b => b.Title.ToLower().Contains(term.ToLower())).Select(b => b.Title).ToList();
+
+                var title = _context.Books.Where(b => b.Title.ToLower()
+                            .StartsWith(term.ToLower())).Select(b => b.Title).Distinct().ToList();
                 return Ok(title);
             }
             catch 
@@ -38,7 +42,8 @@ namespace Proiect.Controllers
             try
             {
                 string term = HttpContext.Request.Query["term"].ToString();
-                var author = _context.Books.Where(b => b.Authors.Name.ToLower().Contains(term.ToLower())).Select(b => b.Authors.Name).ToList();
+                var author = _context.Books.Where(b => b.Authors.Name.ToLower()
+                                .StartsWith(term.ToLower())).Select(b => b.Authors.Name).Distinct().ToList();
                 return Ok(author);
             }
             catch
