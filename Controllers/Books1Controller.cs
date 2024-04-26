@@ -1,41 +1,49 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Lucene.Net.Analysis.Standard;
+using Lucene.Net.Index;
+using Lucene.Net.QueryParsers;
+using Lucene.Net.Search;
+using Lucene.Net.Store;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Proiect.Search;
 using Proiect_CE.Data;
 using Proiect_CE.Models;
 using System;
 using System.Data;
 using System.Security.Claims;
+using static Lucene.Net.Search.SimpleFacetedSearch;
 
 namespace Proiect_CE.Controllers
 {
     public class Books1Controller : Controller
     {
         private readonly BookStoreContext _context;
-
-        public Books1Controller(BookStoreContext context)
+        private readonly BookSearchEngine _bookSearchEngine;
+        public Books1Controller(BookStoreContext context, BookSearchEngine bookSearchEngine)
         {
             _context = context;
+            _bookSearchEngine = bookSearchEngine;
         }
 
         // GET: Books1
         [AllowAnonymous]
         public async Task<IActionResult> Index(string title)
         {
-            if(title != null)
+            if (title != null)
             {
                 var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
-                .Include(b => b.PublishingHouse).Where(b=>b.Title.ToLower().Contains(title.ToLower()));
+                .Include(b => b.PublishingHouse).Include(b => b.Specifications).Where(b => b.Title.ToLower().Contains(title.ToLower()));
                 return View(await books.ToListAsync());
             }
             else
             {
-                var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
-                .Include(b => b.PublishingHouse);
+                var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre).Include(b => b.Specifications)
+                    .Include(b => b.PublishingHouse);
                 return View(await books.ToListAsync());
             }
-            
+
         }
 
         public async Task<IActionResult> SearchByAuthor(string author)
@@ -43,17 +51,20 @@ namespace Proiect_CE.Controllers
             if (author != null)
             {
                 var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
-                .Include(b => b.PublishingHouse).Where(b => b.Authors.Name.ToLower().Contains(author.ToLower()));
-                return View("Index",await books.ToListAsync());
+                .Include(b => b.PublishingHouse)
+                .Include(b => b.Specifications)
+                .Where(b => b.Authors.Name.ToLower().Contains(author.ToLower()));
+                return View("Index", await books.ToListAsync());
             }
             else
             {
                 var books = _context.Books.Include(b => b.Authors).Include(b => b.Genre)
-                .Include(b => b.PublishingHouse);
+                .Include(b => b.PublishingHouse).Include(b => b.Specifications);
                 return View("Index", await books.ToListAsync());
             }
 
         }
+    
 
         [AllowAnonymous]
         public async Task<IActionResult> BookGroupByGenre(int genreId)
@@ -115,8 +126,8 @@ namespace Proiect_CE.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("ISBN,Title,Description,PublishingHouseId," +
-            "Price,DatePublishing,GenreId,AuthorId,Stock,ImageFile,FragmentFile")] Book book)
+        public async Task<IActionResult> Create([Bind("ISBN,Title,Description, PublishingHouseId," +
+            "Price,DatePublishing,GenreId,AuthorId,Stock,,Specifications,ImageFile,FragmentFile")] Book book)
         {
             book.DatePublishing = book.DatePublishing.ToUniversalTime();
             if (book.ImageFile != null && book.ImageFile.Length > 0)
@@ -134,6 +145,14 @@ namespace Proiect_CE.Controllers
                     await book.FragmentFile.CopyToAsync(ms);
                     book.FileText = ms.ToArray();
                     book.FragmentFileName = book.FragmentFile.FileName;
+                }
+            }
+            if (book.Specifications != null && book.Specifications.Any())
+            {
+                foreach (var specification in book.Specifications)
+                {
+                    specification.BookId = book.ISBN; // Asociați specificația cu ISBN-ul cărții
+                    _context.Specifications.Add(specification);
                 }
             }
             _context.Add(book);
@@ -180,17 +199,18 @@ namespace Proiect_CE.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(string id, [Bind("ISBN,Title,Description,PublishingHouseId,Price," +
-            "DatePublishing,GenreId,AuthorId,Stock,ImageFile,FragmentFile")] Book book)
+        public async Task<IActionResult> Edit(string id, [Bind("ISBN,Title,Description, PublishingHouseId, Price, DatePublishing, GenreId, AuthorId, Stock, ImageFile, FragmentFile, Specifications")] Book book)
         {
             if (id != book.ISBN)
             {
                 return NotFound();
             }
+
             book.DatePublishing = book.DatePublishing.ToUniversalTime();
 
             try
             {
+                // Procesați imaginea și fragmentul dacă au fost încărcate
                 if (book.ImageFile != null && book.ImageFile.Length > 0)
                 {
                     using (var ms = new MemoryStream())
@@ -205,9 +225,36 @@ namespace Proiect_CE.Controllers
                     {
                         await book.FragmentFile.CopyToAsync(ms);
                         book.FileText = ms.ToArray();
-                        book.FragmentFileName = book.FragmentFile.FileName; 
+                        book.FragmentFileName = book.FragmentFile.FileName;
                     }
                 }
+
+                // Procesați specificațiile
+                if (book.Specifications != null)
+                {
+                    // Iterați prin specificațiile din formular
+                    foreach (var specification in book.Specifications)
+                    {
+                        // Dacă specificația are un ID, este o specificație existentă și trebuie actualizată
+                        if (specification.Id > 0)
+                        {
+                            var existingSpec = await _context.Specifications.FindAsync(specification.Id);
+                            if (existingSpec != null)
+                            {
+                                existingSpec.Name = specification.Name;
+                                existingSpec.Value = specification.Value;
+                            }
+                        }
+                        else
+                        {
+                            // Dacă specificația este nouă, asociați-o cu cartea și adăugați-o în contextul bazei de date
+                            specification.BookId = book.ISBN;
+                            _context.Specifications.Add(specification);
+                        }
+                    }
+                }
+
+                // Actualizați cartea în contextul bazei de date
                 _context.Update(book);
                 await _context.SaveChangesAsync();
             }
@@ -222,9 +269,10 @@ namespace Proiect_CE.Controllers
                     throw;
                 }
             }
-            return RedirectToAction(nameof(Index));
 
+            return RedirectToAction(nameof(Index));
         }
+
 
         // GET: Books1/Delete/5
         [Authorize(Roles = "Admin")]

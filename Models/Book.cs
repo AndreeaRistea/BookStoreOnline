@@ -8,7 +8,6 @@ namespace Proiect_CE.Models
 {
     public class Book
     {
-
         [DisplayName("ISBN")]
         [Key] public string ISBN { get; set; }
         [DisplayName("Titlu carte")]
@@ -23,6 +22,8 @@ namespace Proiect_CE.Models
         public int Price { get; set; }
         [DisplayName("Data publicarii")]
         public DateTime DatePublishing { get; set; }
+        //[DisplayName("Specificatii")]
+        //public string Specifications { get; set; }
         [DisplayName("Gen carte")]
         public virtual Genre Genre { get; set; }
         [DisplayName("Gen carte")]
@@ -49,5 +50,10 @@ namespace Proiect_CE.Models
         public ICollection<WishList> WishLists { get; set; }
         //public ICollection<Cart> Carts { get; set; }
         public CartItem CartItem { get; set; }
+        public string Author { get; }
+        public string Genre1 { get; }
+        [DisplayName("Specificatii")]
+        public ICollection<Specification> Specifications { get; set; }
+
     }
 }

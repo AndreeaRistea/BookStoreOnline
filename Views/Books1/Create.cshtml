@@ -13,6 +13,8 @@
     <div class="col-md-4">
         <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Formulă pentru detaliile cărții -->
             <div class="form-group">
                 <label asp-for="ISBN" class="control-label"></label>
                 <input asp-for="ISBN" class="form-control" />
@@ -34,25 +36,25 @@
             </div>
             <div class="form-group">
                 <label asp-for="DatePublishing" class="control-label"></label>
-                <input asp-for="DatePublishing" class="form-control" />
+                <input asp-for="DatePublishing" type="date" class="form-control" />
                 <span asp-validation-for="DatePublishing" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="GenreId" class="control-label"></label>
-                <select asp-for="GenreId" class ="form-control" asp-items="ViewBag.GenreId"></select>
+                <select asp-for="GenreId" class="form-control" asp-items="ViewBag.GenreId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="AuthorId" class="control-label"></label>
-                <select asp-for="AuthorId" class ="form-control" asp-items="ViewBag.AuthorId"></select>
+                <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId"></select>
             </div>
-             <div class="form-group">
+            <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
+                <input asp-for="Price" type="number" class="form-control" />
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Stock" class="control-label"></label>
-                <input asp-for="Stock" class="form-control" />
+                <input asp-for="Stock" type="number" class="form-control" />
                 <span asp-validation-for="Stock" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -65,6 +67,16 @@
                 <input asp-for="FragmentFile" type="file" class="form-control" />
                 <span asp-validation-for="FragmentFile" class="text-danger"></span>
             </div>
+
+            <!-- Container pentru specificații -->
+            <div id="specificationsContainer">
+                <!-- Câmpurile pentru specificații vor fi adăugate aici în mod dinamic -->
+            </div>
+
+            <!-- Buton pentru adăugarea unei noi specificații -->
+            <button type="button" id="addSpecificationButton" class="btn btn-secondary">Adaugă specificație</button>
+
+            <!-- Butoane de salvare și back -->
             <div class="form-group">
                 <a asp-action="Index" class="btn btn-secondary mb-1"><i class="fas fa-long-arrow-alt-left"></i>&nbsp;Inapoi</a>
                 <button type="submit" class="btn btn-primary mb-1"><i class="far fa-save"></i>&nbsp;Salveaza</button>
@@ -74,5 +86,44 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!-- Script pentru adăugarea dinamică a specificațiilor -->
+    <script>
+        document.getElementById('addSpecificationButton').addEventListener('click', function () {
+            var container = document.getElementById('specificationsContainer');
+            var index = container.children.length; // Obține numărul actual de specificații pentru a determina indexul următoarei specificații
+
+            // Creați un nou div pentru a conține câmpurile specificației
+            var specDiv = document.createElement('div');
+            specDiv.classList.add('form-group');
+
+            // Câmpul pentru numele specificației
+            var nameLabel = document.createElement('label');
+            nameLabel.textContent = 'Nume specificație';
+            specDiv.appendChild(nameLabel);
+
+            var nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = `Specifications[${index}].Name`;
+            nameInput.className = 'form-control';
+            specDiv.appendChild(nameInput);
+
+            // Câmpul pentru valoarea specificației
+            var valueLabel = document.createElement('label');
+            valueLabel.textContent = 'Valoare specificație';
+            specDiv.appendChild(valueLabel);
+
+            var valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.name = `Specifications[${index}].Value`;
+            valueInput.className = 'form-control';
+            specDiv.appendChild(valueInput);
+
+            // Adăugați noul div în container
+            container.appendChild(specDiv);
+        });
+    </script>
 }

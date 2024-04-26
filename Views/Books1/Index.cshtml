@@ -78,6 +78,18 @@
             </div>
         </form>
     </div>
+    <form asp-controller="Search" asp-action="Search" method="get">
+        <div class="input-group mb-3">
+            <input type="text" id="searchTerm" name="searchTerm" placeholder="Caută după specificatii, titlu sau descriere..." class="form-control" />
+            <select name="sortOrder">
+                <option value="relevanceAsc">Releventa: Asc</option>
+                <option value="relevanceDesc">Relevanta: Desc</option>
+            </select>
+            <div class="input-group-append">
+                <button class="btn btn-dark border-0" type="submit">Caută</button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <div class="container">
@@ -98,6 +110,16 @@
                             <p class="card-text">Author: @item.Authors.Name</p>
                             <p class="card-text">Price: @item.Price lei</p>
                             <p class="card-text">Stock: @item.Stock buc</p>
+
+                            <!-- Afișează specificațiile cărții -->
+                            @if (item.Specifications != null && item.Specifications.Any())
+                            {
+                                <p class="card-text">
+                                    Specifications:
+                                    @string.Join(", ", item.Specifications.Select(s => $"{s.Name} {s.Value}"))
+                                </p>
+                            }
+
                             @if (!string.IsNullOrEmpty(item.FragmentFileName))
                             {
                                 <div class="form-group">
@@ -124,8 +146,9 @@
                                 </form>
                             }
                         </div>
+                    </div>
                 </div>
-            </div>
+
             }
         }
         else

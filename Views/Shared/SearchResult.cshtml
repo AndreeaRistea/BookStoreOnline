@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Proiect_CE.Models.Book>
+
+@{
+    ViewData["Title"] = "Rezultatele căutării";
+}
+
+<h1>Rezultatele căutării</h1>
+
+<script>
+    window.addEventListener('load', function () {
+        var cards = document.querySelectorAll('.card');
+        var maxHeight = 0;
+
+        cards.forEach(function (card) {
+            maxHeight = Math.max(maxHeight, card.offsetHeight);
+        });
+
+        cards.forEach(function (card) {
+            card.style.height = maxHeight + 'px';
+        });
+    });
+</script>
+
+@if (Model == null || !Model.Any())
+{
+    <p>Nu au fost găsite rezultate pentru căutarea dvs.</p>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            @foreach (var book in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        @if (book.Image != null)
+                        {
+                            <img src="data:image;base64,@Convert.ToBase64String(book.Image)" class="card-img-top" alt="Book Image">
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <p class="card-text">@book.Description</p>
+                            <p class="card-text">Data publicării: @book.DatePublishing.ToShortDateString()</p>
+                            <p class="card-text">Preț: @book.Price lei</p>
+                            <p class="card-text">Stoc: @book.Stock buc</p>
+
+                            <!-- Afișează specificațiile cărții -->
+                            @if (book.Specifications != null && book.Specifications.Any())
+                            {
+                                <p class="card-text">
+                                    Specificații:
+                                    <ul>
+                                        @foreach (var spec in book.Specifications)
+                                        {
+                                            <li>@spec.Name: @spec.Value</li>
+                                        }
+                                    </ul>
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

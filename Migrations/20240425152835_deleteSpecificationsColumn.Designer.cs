@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Proiect_CE.Data;
@@ -11,9 +12,11 @@ using Proiect_CE.Data;
 namespace Proiect.Migrations
 {
     [DbContext(typeof(BookStoreContext))]
-    partial class BookStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20240425152835_deleteSpecificationsColumn")]
+    partial class deleteSpecificationsColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -339,33 +342,6 @@ namespace Proiect.Migrations
                     b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("Proiect.Models.Specification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BookId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
-
-                    b.ToTable("Specifications");
-                });
-
             modelBuilder.Entity("Proiect_CE.Models.Author", b =>
                 {
                     b.Property<int>("Id")
@@ -659,17 +635,6 @@ namespace Proiect.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Proiect.Models.Specification", b =>
-                {
-                    b.HasOne("Proiect_CE.Models.Book", "Book")
-                        .WithMany("Specifications")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-                });
-
             modelBuilder.Entity("Proiect_CE.Models.Book", b =>
                 {
                     b.HasOne("Proiect_CE.Models.Author", "Authors")
@@ -750,11 +715,6 @@ namespace Proiect.Migrations
             modelBuilder.Entity("Proiect_CE.Models.Author", b =>
                 {
                     b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("Proiect_CE.Models.Book", b =>
-                {
-                    b.Navigation("Specifications");
                 });
 
             modelBuilder.Entity("Proiect_CE.Models.Genre", b =>

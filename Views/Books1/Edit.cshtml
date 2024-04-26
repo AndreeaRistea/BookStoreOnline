@@ -9,9 +9,11 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit" enctype="multipart/form-data">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ISBN" />
+
+            <!-- Restul formularului pentru editarea detaliilor cărții -->
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
@@ -29,7 +31,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="DatePublishing" class="control-label"></label>
-                <input asp-for="DatePublishing" class="form-control" />
+                <input asp-for="DatePublishing" type="date" class="form-control" />
                 <span asp-validation-for="DatePublishing" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -63,6 +65,35 @@
                 <span asp-validation-for="FragmentFile" class="text-danger"></span>
             </div>
 
+            <!-- Container pentru specificații -->
+            <div class="form-group">
+                <label>Specificatii</label>
+
+                <!-- Afișarea specificațiilor existente -->
+                <div id="existingSpecifications">
+                    @if (Model != null && Model.Specifications != null)
+                    {
+                        @for (int i = 0; i < Model.Specifications.Count; i++)
+                        {
+                            var spec = Model.Specifications.ElementAt(i);
+                            <div class="form-group">
+                                <label for="specifications[@i].Name">Nume</label>
+                                <input type="text" name="Specifications[@i].Name" value="@spec.Name" class="form-control" />
+
+                                <label for="specifications[@i].Value">Valoare</label>
+                                <input type="text" name="Specifications[@i].Value" value="@spec.Value" class="form-control" />
+                            </div>
+                        }
+                    }
+                </div>
+
+                <!-- Adăugați butonul pentru a adăuga noi specificații -->
+                <button type="button" id="addSpecificationButton" class="btn btn-secondary">Adaugă specificație</button>
+
+                <!-- Container pentru specificațiile noi -->
+                <div id="newSpecifications"></div>
+            </div>
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -75,5 +106,44 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!-- Script pentru adăugarea dinamică a specificațiilor -->
+    <script>
+        document.getElementById('addSpecificationButton').addEventListener('click', function () {
+            var container = document.getElementById('newSpecifications');
+            var index = container.children.length;
+
+            // Creați un nou div pentru a conține câmpurile specificației
+            var specDiv = document.createElement('div');
+            specDiv.classList.add('form-group');
+
+            // Câmpul pentru numele specificației
+            var nameLabel = document.createElement('label');
+            nameLabel.textContent = 'Nume';
+            specDiv.appendChild(nameLabel);
+
+            var nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = `Specifications[${index}].Name`;
+            nameInput.className = 'form-control';
+            specDiv.appendChild(nameInput);
+
+            // Câmpul pentru valoarea specificației
+            var valueLabel = document.createElement('label');
+            valueLabel.textContent = 'Valoare';
+            specDiv.appendChild(valueLabel);
+
+            var valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.name = `Specifications[${index}].Value`;
+            valueInput.className = 'form-control';
+            specDiv.appendChild(valueInput);
+
+            // Adăugați noul div în containerul de specificații noi
+            container.appendChild(specDiv);
+        });
+    </script>
 }
